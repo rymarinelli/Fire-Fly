@@ -1,0 +1,21 @@
+FROM horovod/horovod:0.16.0-tf1.12.0-torch1.0.0-mxnet1.4.0-py3.5
+
+ARG spark_version=3.0.0
+ARG jupyterlab_version=2.1.5
+
+RUN apt-get update -y && \
+    apt-get install -y python3-pip && \
+	pip3 install tensorflow  && \
+	pip3 install git+https://www.github.com/keras-team/keras-contrib.git && \
+	pip3 install horovod[tensorflow,keras,spark]  && \
+    pip3 install wget pyspark==${spark_version} jupyterlab==${jupyterlab_version}
+
+
+# Until https://github.com/horovod/horovod/pull/858 is merged
+RUN ln -s /usr/local/bin/mpirun /usr/local/bin/horovodrun
+
+
+
+EXPOSE 8888
+WORKDIR ${SHARED_WORKSPACE}
+CMD jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token=
